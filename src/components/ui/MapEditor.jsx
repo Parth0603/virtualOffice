@@ -75,9 +75,9 @@ export function MapEditor({ onMapSubmitted }) {
         map: mapGrid,
         zoneColors: ZONE_COLORS
       });
-      if (onMapSubmitted) {
-        onMapSubmitted({ map: mapGrid, zoneColors: ZONE_COLORS });
-      }
+    }
+    if (onMapSubmitted) {
+      onMapSubmitted({ map: mapGrid, zoneColors: ZONE_COLORS });
     }
   };
 
