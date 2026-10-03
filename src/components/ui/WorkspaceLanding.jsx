@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { workspaceStore } from '../../state/useWorkspaceStore.js';
+import { getBackendUrl } from '../../networking/socketClient.js';
 
 export function WorkspaceLanding() {
   const { profile } = workspaceStore.getState();
@@ -21,9 +22,19 @@ export function WorkspaceLanding() {
     }
   }, []);
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!name.trim()) return;
     const newId = Math.random().toString(36).substring(2, 10);
+    const backendUrl = getBackendUrl();
+    try {
+      await fetch(`${backendUrl}/api/workspace`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: newId })
+      });
+    } catch (err) {
+      console.warn('Backend pre-registration note:', err);
+    }
     workspaceStore.setProfile({ ...profile, name });
     workspaceStore.setWorkspaceId(newId);
     workspaceStore.setIsCreator(true);
@@ -41,8 +52,9 @@ export function WorkspaceLanding() {
     }
 
     setChecking(true);
+    const backendUrl = getBackendUrl();
     try {
-      const res = await fetch(`/api/workspace/${encodeURIComponent(id)}`);
+      const res = await fetch(`${backendUrl}/api/workspace/${encodeURIComponent(id)}`);
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.exists) {
         setError(`Workspace "${id}" does not exist. Please check the code.`);

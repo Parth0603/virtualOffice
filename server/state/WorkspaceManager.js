@@ -180,7 +180,7 @@ class WorkspaceManager {
   cleanupWorkspaces() {
     const now = Date.now();
     for (const [id, workspace] of this.workspaces.entries()) {
-      const isIdle = (now - workspace.lastActivity) > 1000 * 60 * 60; // 1 hour
+      const isIdle = (now - workspace.lastActivity) > 1000 * 60 * 60 * 24; // 24 hours
       if (workspace.getPlayerCount() === 0 && isIdle) {
         this.deleteWorkspace(id);
       }

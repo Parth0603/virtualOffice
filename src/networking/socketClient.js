@@ -1,5 +1,13 @@
 import { io } from 'socket.io-client';
 
+export function getBackendUrl() {
+  const url = import.meta.env.VITE_BACKEND_URL
+    || (window.location.port === '4000'
+      ? `http://${window.location.hostname}:4001`
+      : window.location.origin);
+  return url.replace(/\/+$/, '');
+}
+
 class SocketClient {
   constructor() {
     this.socket = null;
@@ -7,11 +15,7 @@ class SocketClient {
 
   connect() {
     if (!this.socket) {
-      // In production/deployment, use VITE_BACKEND_URL if specified, otherwise dev fallback or origin
-      const targetUrl = import.meta.env.VITE_BACKEND_URL
-        || (window.location.port === '4000'
-          ? `http://${window.location.hostname}:4001`
-          : window.location.origin);
+      const targetUrl = getBackendUrl();
 
       this.socket = io(targetUrl, {
         transports: ['websocket', 'polling'],

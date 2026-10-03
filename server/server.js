@@ -28,6 +28,8 @@ const io = new Server(server, {
 
 setupSocketServer(io);
 
+app.use(express.json());
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });
@@ -41,6 +43,19 @@ app.get('/api/workspace/:id', (req, res) => {
     return res.status(404).json({ exists: false, message: 'Workspace does not exist' });
   }
   return res.json({ exists: true, id, playerCount: workspace.getPlayerCount() });
+});
+
+// Pre-register/Create a workspace
+app.post('/api/workspace', (req, res) => {
+  const { id } = req.body || {};
+  if (!id) {
+    return res.status(400).json({ error: 'Workspace ID is required' });
+  }
+  let workspace = workspaceManager.getWorkspace(id);
+  if (!workspace) {
+    workspace = workspaceManager.createWorkspace(id, null);
+  }
+  return res.json({ exists: true, id });
 });
 
 // Serve frontend dist if it exists
