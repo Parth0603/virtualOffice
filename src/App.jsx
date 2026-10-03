@@ -11,22 +11,30 @@ import { MeetingEndedModal } from './components/ui/MeetingEndedModal.jsx';
 import { PerformanceStats } from './components/ui/PerformanceStats.jsx';
 import { InteractionPrompt } from './components/ui/InteractionPrompt.jsx';
 
+import { WorkspaceLanding } from './components/ui/WorkspaceLanding.jsx';
+
+import { WorkspaceHeader } from './components/ui/WorkspaceHeader.jsx';
+
 export default function App() {
-  const { stage } = useWorkspaceStore();
+  const { stage, workspaceId } = useWorkspaceStore();
 
   const handleJoinWorkspace = useCallback(() => {
     const socket = socketClient.getSocket();
     const profile = workspaceStore.getState().profile;
+    const currentWorkspaceId = workspaceStore.getState().workspaceId;
 
-    if (socket) {
-      socket.emit('joinAfterMap', {
-        name: profile.name,
-        color: profile.color,
-        style: profile.style,
-        hair: profile.hair
+    if (socket && currentWorkspaceId) {
+      socket.emit('joinWorkspace', {
+        workspaceId: currentWorkspaceId,
+        isCreator: workspaceStore.getState().isCreator,
+        playerInfo: {
+          name: profile.name,
+          color: profile.color,
+          style: profile.style,
+          hair: profile.hair
+        }
       });
     }
-    workspaceStore.setStage('workspace');
   }, []);
 
   const handleAvatarContinue = useCallback(() => {
@@ -34,6 +42,21 @@ export default function App() {
 
     socket.on('connect', () => {
       workspaceStore.setMyId(socket.id);
+      
+      const isCreator = workspaceStore.getState().isCreator;
+      if (!isCreator) {
+        handleJoinWorkspace();
+      }
+    });
+
+    socket.on('joinSuccess', () => {
+      workspaceStore.setStage('workspace');
+    });
+
+    socket.on('workspaceError', ({ message }) => {
+      alert(message);
+      workspaceStore.setStage('landing');
+      window.history.pushState({}, '', '/');
     });
 
     socket.on('mapData', (data) => {
@@ -59,7 +82,9 @@ export default function App() {
 
     // Check if map already arrived or if map editor should be shown
     const existingMap = workspaceStore.getState().mapData;
-    if (existingMap) {
+    const isCreator = workspaceStore.getState().isCreator;
+    
+    if (existingMap || !isCreator) {
       handleJoinWorkspace();
     } else {
       // Temporary state while checking or editing map
@@ -74,6 +99,10 @@ export default function App() {
 
   return (
     <div style={{ width: '100vw', height: '100vh', margin: 0, padding: 0, overflow: 'hidden' }}>
+      {stage === 'landing' && (
+        <WorkspaceLanding />
+      )}
+
       {stage === 'avatar' && (
         <AvatarCustomizer onContinue={handleAvatarContinue} />
       )}
@@ -84,6 +113,7 @@ export default function App() {
 
       {stage === 'workspace' && (
         <>
+          <WorkspaceHeader />
           <WorkspaceCanvas />
           <ZoneBanner />
           <PresenceList />

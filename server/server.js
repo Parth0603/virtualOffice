@@ -5,6 +5,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { setupSocketServer } from './socket/connection.js';
+import { workspaceManager } from './state/WorkspaceManager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,6 +31,16 @@ setupSocketServer(io);
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });
+});
+
+// Check if a workspace exists
+app.get('/api/workspace/:id', (req, res) => {
+  const { id } = req.params;
+  const workspace = workspaceManager.getWorkspace(id);
+  if (!workspace) {
+    return res.status(404).json({ exists: false, message: 'Workspace does not exist' });
+  }
+  return res.json({ exists: true, id, playerCount: workspace.getPlayerCount() });
 });
 
 // Serve frontend dist if it exists

@@ -1,6 +1,3 @@
-import { workspaceState } from '../state/workspaceState.js';
-import { playerState } from '../state/playerState.js';
-
 export class PermissionSystem {
   static canAccessZone(player, zoneId) {
     if (!player) return false;
@@ -9,26 +6,26 @@ export class PermissionSystem {
     return Boolean(player.permissions && player.permissions[zoneId]);
   }
 
-  static handleResponse(hostSocketId, { userId, zoneId, approved }) {
-    if (!workspaceState.isHost(hostSocketId)) return false;
-    const targetPlayer = playerState.getPlayer(userId);
+  static handleResponse(workspace, hostSocketId, { userId, zoneId, approved }) {
+    if (!workspace.isHost(hostSocketId)) return false;
+    const targetPlayer = workspace.getPlayer(userId);
     if (!targetPlayer) return false;
 
     if (approved) {
-      playerState.setPermission(userId, zoneId, true);
-      workspaceState.deleteZoneRequest(userId);
+      workspace.setPermission(userId, zoneId, true);
+      workspace.deleteZoneRequest(userId);
     } else {
-      workspaceState.setZoneRequest(userId, zoneId, 'denied');
-      const lastPos = workspaceState.getLastAllowedPosition(userId);
+      workspace.setZoneRequest(userId, zoneId, 'denied');
+      const lastPos = workspace.getLastAllowedPosition(userId);
       if (lastPos) {
-        playerState.updatePosition(userId, lastPos.x, lastPos.y, lastPos.zoneId);
+        workspace.updatePosition(userId, lastPos.x, lastPos.y, lastPos.zoneId);
       }
 
       // Auto-clear denial notification after 2 seconds
       setTimeout(() => {
-        const req = workspaceState.getZoneRequest(userId);
+        const req = workspace.getZoneRequest(userId);
         if (req && req.status === 'denied') {
-          workspaceState.deleteZoneRequest(userId);
+          workspace.deleteZoneRequest(userId);
         }
       }, 2000);
     }
