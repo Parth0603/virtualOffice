@@ -4,6 +4,11 @@ export class AnimationSystem {
   static updateAvatarAnimation(avatarRefs, currentSpeed = 0, delta = 0.016, actionState = 'standing') {
     if (!avatarRefs) return;
 
+    if (typeof avatarRefs.update === 'function') {
+      avatarRefs.update(currentSpeed, delta, actionState);
+      return;
+    }
+
     const {
       leftArm,
       rightArm,

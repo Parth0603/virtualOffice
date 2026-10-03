@@ -46,7 +46,7 @@ app.get('*', (req, res, next) => {
   });
 });
 
-const PORT = process.env.PORT || 4001;
+const PORT = process.env.PORT || 4002;
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Virtual Workspace server running on port ${PORT}`);
 });

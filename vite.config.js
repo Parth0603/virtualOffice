@@ -3,17 +3,18 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  assetsInclude: ['**/*.fbx', '**/*.glb'],
   server: {
     port: 4000,
     host: '0.0.0.0',
     proxy: {
       '/socket.io': {
-        target: 'http://localhost:4001',
+        target: 'http://localhost:4002',
         ws: true,
         changeOrigin: true
       },
       '/api': {
-        target: 'http://localhost:4001',
+        target: 'http://localhost:4002',
         changeOrigin: true
       }
     }
