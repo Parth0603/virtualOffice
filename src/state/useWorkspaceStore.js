@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 export const activePlayersMap = new Map();
 
 let globalState = {
-  stage: 'avatar', // 'avatar' | 'map_editor' | 'workspace'
+  stage: 'landing', // 'landing' | 'avatar' | 'map_editor' | 'workspace'
+  workspaceId: null,
+  isCreator: false,
   profile: {
     name: localStorage.getItem('playerName') || '',
     color: localStorage.getItem('playerColor') || '#3182ce',
@@ -43,6 +45,16 @@ export const workspaceStore = {
 
   setStage: (stage) => {
     globalState = { ...globalState, stage };
+    notify();
+  },
+
+  setWorkspaceId: (workspaceId) => {
+    globalState = { ...globalState, workspaceId };
+    notify();
+  },
+
+  setIsCreator: (isCreator) => {
+    globalState = { ...globalState, isCreator };
     notify();
   },
 

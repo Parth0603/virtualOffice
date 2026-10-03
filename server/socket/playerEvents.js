@@ -1,27 +1,63 @@
-import { workspaceState } from '../state/workspaceState.js';
-import { playerState } from '../state/playerState.js';
+import { workspaceManager } from '../state/WorkspaceManager.js';
 import { getSpawnPoint } from '../utils/zoneUtils.js';
 import { sanitizePlayerInfo } from '../utils/validation.js';
 import { MovementSystem } from '../systems/movementSystem.js';
 import { broadcastState } from './zoneEvents.js';
 
 export function registerPlayerEvents(socket, io) {
-  socket.on('joinAfterMap', (playerInfo) => {
-    const mapData = workspaceState.getMapData();
-    if (!mapData) return;
+    // Check if workspace exists
+  socket.on('checkWorkspace', ({ workspaceId }, callback) => {
+    const exists = !!workspaceManager.getWorkspace(workspaceId);
+    if (typeof callback === 'function') {
+      callback({ exists });
+    } else {
+      socket.emit('workspaceCheckResult', { workspaceId, exists });
+    }
+  });
 
+  // Client requests to join a specific workspace
+  socket.on('joinWorkspace', ({ workspaceId, isCreator, playerInfo }) => {
+    if (!workspaceId) return;
+    
+    // Leave previous workspace if any
+    if (socket.workspaceId && socket.workspaceId !== workspaceId) {
+      const prevWorkspace = workspaceManager.getWorkspace(socket.workspaceId);
+      if (prevWorkspace) {
+        prevWorkspace.removePlayer(socket.id);
+        socket.leave(socket.workspaceId);
+        broadcastState(io, socket.workspaceId);
+      }
+    }
+
+    let workspace = workspaceManager.getWorkspace(workspaceId);
+    if (!workspace) {
+      if (isCreator) {
+        workspace = workspaceManager.createWorkspace(workspaceId, socket.id);
+      } else {
+        socket.emit('workspaceError', { message: 'Workspace does not exist or has expired.' });
+        return;
+      }
+    }
+    
+    socket.join(workspaceId);
+    socket.workspaceId = workspaceId;
+
+    // Send map immediately upon joining
+    socket.emit('mapData', workspace.getMapData());
+
+    const mapData = workspace.getMapData();
     const spawn = getSpawnPoint(mapData.map);
     const sanitized = sanitizePlayerInfo(playerInfo);
 
-    // If no host exists yet, assign first player as host
-    let currentHost = workspaceState.getHostId();
-    if (!currentHost || !playerState.getPlayer(currentHost)) {
-      workspaceState.setHostId(socket.id);
+    // Host assignment
+    let currentHost = workspace.getHostId();
+    if (!currentHost || !workspace.hasPlayer(currentHost)) {
+      workspace.setHostId(socket.id);
       currentHost = socket.id;
     }
     const isHost = socket.id === currentHost;
 
-    playerState.addPlayer(socket.id, {
+    workspace.addPlayer(socket.id, {
       ...sanitized,
       x: spawn.x,
       y: spawn.y,
@@ -30,17 +66,23 @@ export function registerPlayerEvents(socket, io) {
       permissions: isHost ? null : { 1: true }
     });
 
-    workspaceState.setLastAllowedPosition(socket.id, {
+    workspace.setLastAllowedPosition(socket.id, {
       x: spawn.x,
       y: spawn.y,
       zoneId: 1
     });
 
-    broadcastState(io);
+    socket.emit('joinSuccess', { workspaceId, role: isHost ? 'host' : 'user' });
+
+    broadcastState(io, workspaceId);
   });
 
   socket.on('playerMove', ({ x, y, actionState, rotation }) => {
-    const result = MovementSystem.handlePlayerMove(socket.id, { x, y });
+    if (!socket.workspaceId) return;
+    const workspace = workspaceManager.getWorkspace(socket.workspaceId);
+    if (!workspace) return;
+
+    const result = MovementSystem.handlePlayerMove(workspace, socket.id, { x, y });
     if (!result) return;
 
     if (result.moved) {
@@ -50,8 +92,9 @@ export function registerPlayerEvents(socket, io) {
       if (rotation !== undefined) {
         result.player.rotation = rotation;
       }
-      // Broadcast compact delta to other clients to save bandwidth
-      socket.broadcast.emit('playerMoved', {
+      
+      // Broadcast compact delta to the room
+      socket.to(socket.workspaceId).emit('playerMoved', {
         id: socket.id,
         x: result.player.x,
         y: result.player.y,
@@ -59,26 +102,36 @@ export function registerPlayerEvents(socket, io) {
         actionState: result.player.actionState || 'standing',
         rotation: result.player.rotation
       });
+      
       // Also broadcast state if a request was cleared or on zone change
       if (result.player.zoneId !== result.zoneId) {
-        broadcastState(io);
+        broadcastState(io, socket.workspaceId);
       }
     } else if (result.pendingPermission) {
       // Permission request updated, notify host & user
-      broadcastState(io);
+      broadcastState(io, socket.workspaceId);
     }
   });
 
   socket.on('disconnect', () => {
-    if (workspaceState.isHost(socket.id)) {
-      io.emit('meetingEnded', { reason: 'Host left the meeting' });
-      workspaceState.reset();
-      playerState.clear();
+    if (!socket.workspaceId) return;
+    const workspace = workspaceManager.getWorkspace(socket.workspaceId);
+    if (!workspace) return;
+
+    if (workspace.isHost(socket.id)) {
+      workspace.removePlayer(socket.id);
+      const newHost = workspace.reassignHostIfNeeded();
+      
+      if (!newHost) {
+        // No players left, workspace manager will clean it up later or we can delete it now
+      } else {
+        broadcastState(io, socket.workspaceId);
+      }
     } else {
-      playerState.removePlayer(socket.id);
-      workspaceState.deleteZoneRequest(socket.id);
-      workspaceState.deleteLastAllowedPosition(socket.id);
-      broadcastState(io);
+      workspace.removePlayer(socket.id);
+      workspace.deleteZoneRequest(socket.id);
+      workspace.deleteLastAllowedPosition(socket.id);
+      broadcastState(io, socket.workspaceId);
     }
   });
 }
