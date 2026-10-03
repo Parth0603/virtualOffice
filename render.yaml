@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: virtual-workspace-server
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server/server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
