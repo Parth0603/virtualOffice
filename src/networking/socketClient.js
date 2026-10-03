@@ -7,10 +7,11 @@ class SocketClient {
 
   connect() {
     if (!this.socket) {
-      // In dev, frontend connects to backend on port 4001 if not on same origin
-      const targetUrl = window.location.port === '4000'
-        ? `http://${window.location.hostname}:4001`
-        : window.location.origin;
+      // In production/deployment, use VITE_BACKEND_URL if specified, otherwise dev fallback or origin
+      const targetUrl = import.meta.env.VITE_BACKEND_URL
+        || (window.location.port === '4000'
+          ? `http://${window.location.hostname}:4001`
+          : window.location.origin);
 
       this.socket = io(targetUrl, {
         transports: ['websocket', 'polling'],

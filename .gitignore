@@ -7,6 +7,7 @@ node_modules
 dist/
 dist
 build/
+.vercel
 
 # Environment files
 .env
@@ -27,3 +28,5 @@ Thumbs.db
 
 # Git
 *.orig
+
+.vercel
