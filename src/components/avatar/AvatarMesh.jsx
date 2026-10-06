@@ -346,3 +346,4 @@ export const AvatarMesh = React.forwardRef(function AvatarMesh(
     </group>
   );
 });
+

@@ -34,11 +34,11 @@ export class AnimationSystem {
     // Forward is -Z, so dz is negative. -dz > 0.
     const phi = Math.atan2(-dz, -dy);
 
-    // Thigh pitch forward (-X rotation in three.js coordinate space)
-    const thighAngle = -(phi + alpha);
+    // Thigh pitch forward (+X rotation in three.js tilts vector (0, -1, 0) towards (0, 0, -1) which is forward -Z)
+    const thighAngle = phi + alpha;
 
-    // Knee interior angle flex (bending shin back towards +Z / down to floor)
-    const kneeAngle = Math.PI - beta;
+    // Knee interior angle flex (bending shin down/back relative to thigh towards floor)
+    const kneeAngle = -(Math.PI - beta);
 
     // Ankle pitch to keep foot parallel to horizontal floor (world pitch ~ 0)
     const ankleAngle = -(thighAngle + kneeAngle);
@@ -119,10 +119,11 @@ export class AnimationSystem {
     const legSwingR = -legSwingL;
 
     // Natural biomechanical knee kinematics:
-    // When the leg pushes off backward (legSwing > 0), the knee flexes upward to lift the foot.
-    // When the leg swings forward (legSwing < 0), the knee extends forward naturally into heel strike.
-    const kneeFlexL = Math.max(0, legSwingL * 0.85) + (runFactor * 0.35 * Math.max(0, legSwingL));
-    const kneeFlexR = Math.max(0, legSwingR * 0.85) + (runFactor * 0.35 * Math.max(0, legSwingR));
+    // In human locomotion, when the leg pushes off backward (legSwing < 0),
+    // the knee flexes backward (negative rotation around X) to lift the foot off the ground.
+    // When the leg swings forward (legSwing > 0), the knee extends forward naturally into heel strike.
+    const kneeFlexL = -Math.max(0, -legSwingL * 0.85) - (runFactor * 0.40 * Math.max(0, -legSwingL));
+    const kneeFlexR = -Math.max(0, -legSwingR * 0.85) - (runFactor * 0.40 * Math.max(0, -legSwingR));
 
     // Arm swing for walking/running (in opposition to legs)
     const armSwingMax = THREE.MathUtils.lerp(0.40, 0.78, runFactor);
@@ -138,10 +139,10 @@ export class AnimationSystem {
     // Blended standing poses
     const standThighRotXL = THREE.MathUtils.lerp(0, legSwingL, moveBlend);
     const standThighRotXR = THREE.MathUtils.lerp(0, legSwingR, moveBlend);
-    const standKneeRotXL = THREE.MathUtils.lerp(0.02, kneeFlexL, moveBlend);
-    const standKneeRotXR = THREE.MathUtils.lerp(0.02, kneeFlexR, moveBlend);
-    const standAnkleRotXL = THREE.MathUtils.lerp(-0.02, -legSwingL * 0.3, moveBlend);
-    const standAnkleRotXR = THREE.MathUtils.lerp(-0.02, -legSwingR * 0.3, moveBlend);
+    const standKneeRotXL = THREE.MathUtils.lerp(-0.02, kneeFlexL, moveBlend);
+    const standKneeRotXR = THREE.MathUtils.lerp(-0.02, kneeFlexR, moveBlend);
+    const standAnkleRotXL = THREE.MathUtils.lerp(0.02, legSwingL * 0.25, moveBlend);
+    const standAnkleRotXR = THREE.MathUtils.lerp(0.02, legSwingR * 0.25, moveBlend);
 
     const standArmRotXL = THREE.MathUtils.lerp(idleArmL, armSwingL, moveBlend);
     const standArmRotXR = THREE.MathUtils.lerp(idleArmR, armSwingR, moveBlend);
@@ -149,11 +150,11 @@ export class AnimationSystem {
     // ------------------------------------------------------------------------
     // 2. SEATED 2-BONE INVERSE KINEMATICS & POSE SOLVING
     // ------------------------------------------------------------------------
-    // Pelvis standing height: 13.5 -> Pelvis seated height: 7.2 (on chair seat)
+    // Pelvis standing height: 13.5 -> Pelvis seated height: 5.5 (snug on chair seat cushion)
     // Hip joint offset from pelvis: Y = -1.0
     // Thigh length L1 = 6.2, Shin length L2 = 5.8
-    // Target ankle position when sitting: Ankle Y = 0.5 (above floor), Ankle Z = -5.8 (in front of hip)
-    const sittingPelvisY = 7.2;
+    // Target ankle position when sitting: Ankle Y = 0.3 (firm on floor), Ankle Z = -4.3 (resting naturally under knees)
+    const sittingPelvisY = 5.5;
     const standingPelvisY = 13.5;
 
     const currentPelvisY = THREE.MathUtils.lerp(
@@ -164,8 +165,8 @@ export class AnimationSystem {
 
     // Solve 2-Bone IK for left and right legs
     const currentHipY = currentPelvisY - 1.0;
-    const targetAnkleY = 0.5; // Flat on floor (sole sits at Y = 0.0)
-    const targetAnkleZ = -5.8; // Extended forward in front of the chair
+    const targetAnkleY = 0.3; // Flat on floor (sole sits at Y = 0.0)
+    const targetAnkleZ = -4.3; // Right below the edge of the chair cushion
 
     const dy = targetAnkleY - currentHipY;
     const dz = targetAnkleZ;
@@ -184,7 +185,7 @@ export class AnimationSystem {
     // A. PELVIS & ROOT HIPS
     if (pelvis) {
       pelvis.position.y = currentPelvisY;
-      pelvis.position.z = THREE.MathUtils.lerp(0, 0.4, sitBlend);
+      pelvis.position.z = THREE.MathUtils.lerp(0, 1.9, sitBlend);
       pelvis.rotation.x = THREE.MathUtils.lerp(0, 0.03, sitBlend);
       pelvis.rotation.y = THREE.MathUtils.lerp(0, 0, sitBlend);
       pelvis.rotation.z = THREE.MathUtils.lerp(0, breathSway * 0.2, sitBlend);

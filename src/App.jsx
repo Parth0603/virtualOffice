@@ -2,7 +2,6 @@ import React, { useEffect, useCallback } from 'react';
 import { useWorkspaceStore, workspaceStore } from './state/useWorkspaceStore.js';
 import { socketClient } from './networking/socketClient.js';
 import { AvatarCustomizer } from './components/ui/AvatarCustomizer.jsx';
-import { MapEditor } from './components/ui/MapEditor.jsx';
 import { WorkspaceCanvas } from './components/scene/WorkspaceCanvas.jsx';
 import { PresenceList } from './components/ui/PresenceList.jsx';
 import { PermissionOverlays } from './components/ui/PermissionOverlays.jsx';
@@ -10,9 +9,7 @@ import { ZoneBanner } from './components/ui/ZoneBanner.jsx';
 import { MeetingEndedModal } from './components/ui/MeetingEndedModal.jsx';
 import { PerformanceStats } from './components/ui/PerformanceStats.jsx';
 import { InteractionPrompt } from './components/ui/InteractionPrompt.jsx';
-
 import { WorkspaceLanding } from './components/ui/WorkspaceLanding.jsx';
-
 import { WorkspaceHeader } from './components/ui/WorkspaceHeader.jsx';
 
 export default function App() {
@@ -42,11 +39,7 @@ export default function App() {
 
     socket.on('connect', () => {
       workspaceStore.setMyId(socket.id);
-      
-      const isCreator = workspaceStore.getState().isCreator;
-      if (!isCreator) {
-        handleJoinWorkspace();
-      }
+      handleJoinWorkspace();
     });
 
     socket.on('joinSuccess', () => {
@@ -61,11 +54,7 @@ export default function App() {
 
     socket.on('mapData', (data) => {
       workspaceStore.setMapData(data);
-      // If player already chose avatar, join workspace directly
-      const currentStage = workspaceStore.getState().stage;
-      if (currentStage === 'map_editor' || currentStage === 'avatar_ready') {
-        handleJoinWorkspace();
-      }
+      handleJoinWorkspace();
     });
 
     socket.on('updateState', (data) => {
@@ -80,21 +69,11 @@ export default function App() {
       workspaceStore.setMeetingEnded(true);
     });
 
-    // Check if map already arrived or if map editor should be shown
-    const existingMap = workspaceStore.getState().mapData;
-    const isCreator = workspaceStore.getState().isCreator;
-    
-    if (existingMap || !isCreator) {
+    // If socket is already connected, join immediately
+    if (socket.connected) {
+      workspaceStore.setMyId(socket.id);
       handleJoinWorkspace();
-    } else {
-      // Temporary state while checking or editing map
-      workspaceStore.setStage('map_editor');
     }
-  }, [handleJoinWorkspace]);
-
-  const handleMapSubmitted = useCallback((mapData) => {
-    workspaceStore.setMapData(mapData);
-    handleJoinWorkspace();
   }, [handleJoinWorkspace]);
 
   return (
@@ -105,10 +84,6 @@ export default function App() {
 
       {stage === 'avatar' && (
         <AvatarCustomizer onContinue={handleAvatarContinue} />
-      )}
-
-      {stage === 'map_editor' && (
-        <MapEditor onMapSubmitted={handleMapSubmitted} />
       )}
 
       {stage === 'workspace' && (
