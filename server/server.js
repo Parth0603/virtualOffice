@@ -6,6 +6,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { setupSocketServer } from './socket/connection.js';
 import { workspaceManager } from './state/WorkspaceManager.js';
+import { weatherService } from './systems/weatherService.js';
+import { broadcastState } from './socket/zoneEvents.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,6 +29,15 @@ const io = new Server(server, {
 });
 
 setupSocketServer(io);
+
+// Start Weather Service & listen for changes
+weatherService.start();
+weatherService.onUpdate((envData) => {
+  for (const [workspaceId, workspace] of workspaceManager.workspaces.entries()) {
+    workspace.setEnvironment(envData);
+    broadcastState(io, workspaceId);
+  }
+});
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

@@ -1,5 +1,6 @@
 import { precomputeCollisionGrid } from '../utils/zoneUtils.js';
 import { DEFAULT_OFFICE_MAP, DEFAULT_ZONE_COLORS } from '../constants/defaultMap.js';
+import { weatherService } from '../systems/weatherService.js';
 
 class Workspace {
   constructor(id, hostSocketId) {
@@ -10,11 +11,27 @@ class Workspace {
     this.zoneRequests = new Map();
     this.lastAllowedPositions = new Map();
     this.players = new Map();
+    this.environment = weatherService.getEnvironment();
     this.lastActivity = Date.now();
   }
 
   touch() {
     this.lastActivity = Date.now();
+  }
+
+  // --- Environment ---
+  getEnvironment() {
+    return this.environment || weatherService.getEnvironment();
+  }
+
+  setEnvironment(envData) {
+    this.environment = {
+      ...this.getEnvironment(),
+      ...envData,
+      lastUpdated: Date.now()
+    };
+    this.touch();
+    return this.environment;
   }
 
   // --- Map & Host ---

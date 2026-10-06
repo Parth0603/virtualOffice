@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import * as THREE from 'three';
-import { WorldLighting } from './WorldLighting.jsx';
+import { EnvironmentManager } from '../../environment/EnvironmentManager.jsx';
 import { WorldTiles } from './WorldTiles.jsx';
 import { WorkspaceFurniture } from './WorkspaceFurniture.jsx';
 import { LocalPlayer } from '../avatar/LocalPlayer.jsx';
@@ -29,7 +29,7 @@ export function WorkspaceCanvas() {
           scene.background = new THREE.Color(0xf1f5f9);
         }}
       >
-        <WorldLighting />
+        <EnvironmentManager playerRef={localPlayerRef} />
         <WorldTiles mapData={mapData} />
         <WorkspaceFurniture mapData={mapData} />
         <LocalPlayer playerRef={localPlayerRef} />

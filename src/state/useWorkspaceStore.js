@@ -22,7 +22,16 @@ let globalState = {
   isCameraLocked: true,
   meetingEnded: false,
   myCurrentZone: 1,
-  remotePlayersVersion: 0 // Incremented only when players join/leave/re-perm, not per step
+  remotePlayersVersion: 0, // Incremented only when players join/leave/re-perm, not per step
+  environment: {
+    timezone: 'Asia/Kolkata',
+    weather: 'CLEAR',
+    weatherIntensity: 0.0,
+    cloudCover: 0.1,
+    windSpeed: 8.0,
+    windDirection: 180,
+    lastUpdated: Date.now()
+  }
 };
 
 const listeners = new Set();
@@ -64,7 +73,7 @@ export const workspaceStore = {
   },
 
   setSyncState: (data) => {
-    const { players = {}, zoneRoster = {}, hostId, zoneRequests = {} } = data;
+    const { players = {}, zoneRoster = {}, hostId, zoneRequests = {}, environment } = data;
     const myId = globalState.myId;
     const myPlayer = players[myId];
     const myRole = myPlayer ? myPlayer.role : (hostId === myId ? 'host' : 'user');
@@ -111,7 +120,16 @@ export const workspaceStore = {
       myCurrentZone,
       zoneRoster,
       zoneRequests,
+      environment: environment ? { ...globalState.environment, ...environment } : globalState.environment,
       remotePlayersVersion: playerListChanged ? globalState.remotePlayersVersion + 1 : globalState.remotePlayersVersion
+    };
+    notify();
+  },
+
+  setEnvironmentState: (env) => {
+    globalState = {
+      ...globalState,
+      environment: { ...globalState.environment, ...env }
     };
     notify();
   },

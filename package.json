@@ -11,6 +11,7 @@
     "start": "node server/server.js"
   },
   "dependencies": {
+    "@gradio/client": "^2.7.1",
     "@react-three/drei": "^9.99.0",
     "@react-three/fiber": "^8.15.16",
     "cors": "^2.8.5",

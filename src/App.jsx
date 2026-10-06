@@ -14,6 +14,7 @@ import { InteractionPrompt } from './components/ui/InteractionPrompt.jsx';
 import { WorkspaceLanding } from './components/ui/WorkspaceLanding.jsx';
 
 import { WorkspaceHeader } from './components/ui/WorkspaceHeader.jsx';
+import { EnvironmentDebugPanel } from './environment/EnvironmentDebugPanel.jsx';
 
 export default function App() {
   const { stage, workspaceId } = useWorkspaceStore();
@@ -121,6 +122,7 @@ export default function App() {
           <MeetingEndedModal />
           <PerformanceStats />
           <InteractionPrompt />
+          <EnvironmentDebugPanel />
         </>
       )}
     </div>

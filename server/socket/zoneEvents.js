@@ -9,7 +9,8 @@ export function broadcastState(io, workspaceId) {
     players: workspace.getPlayersMap(),
     zoneRoster: ZoneSystem.getRosters(workspace),
     hostId: workspace.getHostId(),
-    zoneRequests: workspace.getAllZoneRequests()
+    zoneRequests: workspace.getAllZoneRequests(),
+    environment: workspace.getEnvironment()
   });
 }
 
@@ -34,5 +35,15 @@ export function registerZoneEvents(socket, io) {
     if (success) {
       broadcastState(io, socket.workspaceId);
     }
+  });
+
+  // Optional debug/host environment override
+  socket.on('setEnvironmentOverride', (overrideData) => {
+    if (!socket.workspaceId) return;
+    const workspace = workspaceManager.getWorkspace(socket.workspaceId);
+    if (!workspace) return;
+
+    workspace.setEnvironment(overrideData);
+    broadcastState(io, socket.workspaceId);
   });
 }

@@ -4,38 +4,22 @@ import { geometryPool } from '../../utils/geometryPool.js';
 import { materialPool } from '../../utils/materialPool.js';
 import { interactionRegistry, InteractableObject } from '../../systems/interactionSystem.js';
 import { CollisionSystem } from '../../systems/collision.js';
+import {
+  OfficeChairModel,
+  ClubArmchairModel,
+  LongSofaModel,
+  DublinChairModel,
+  SwingChairModel
+} from './AssetModels.jsx';
 
-// Ergonomic Mesh & Leather Office Chair
-function OfficeChair({ position, rotation = [0, 0, 0], color = 'navy' }) {
-  const fabricMat = color === 'cream' ? materialPool.fabricCream : materialPool.fabricNavy;
-
-  return (
-    <group position={position} rotation={rotation}>
-      <mesh position={[0, 6.2, 0]} geometry={geometryPool.chairSeat} material={fabricMat} castShadow receiveShadow />
-      <mesh position={[0, 11.2, 3.6]} geometry={geometryPool.chairBack} material={fabricMat} castShadow />
-      <mesh position={[-4.2, 8.5, 0.5]} geometry={geometryPool.chairArm} material={materialPool.metal} />
-      <mesh position={[4.2, 8.5, 0.5]} geometry={geometryPool.chairArm} material={materialPool.metal} />
-      <mesh position={[0, 3.1, 0]} geometry={geometryPool.chairPole} material={materialPool.metalChrome} />
-      <mesh position={[0, 0.6, 0]} geometry={geometryPool.chairBase} material={materialPool.metalChrome} />
-    </group>
-  );
+// Ergonomic Mesh & Leather Office Task Chair (from /Assets_lib/office_chair.glb)
+function OfficeChair({ position, rotation = [0, 0, 0] }) {
+  return <OfficeChairModel position={position} rotation={rotation} />;
 }
 
-// Mid-Century Modern Club Lounge Armchair (Back at +Z, facing -Z)
-function ClubArmchair({ position, rotation = [0, 0, 0], color = 'cream' }) {
-  const fabricMat = color === 'cream' ? materialPool.fabricCream : materialPool.fabricTeal;
-
-  return (
-    <group position={position} rotation={rotation}>
-      <mesh position={[0, 5.5, 0]} geometry={geometryPool.loungeArmchairSeat} material={fabricMat} castShadow receiveShadow />
-      <mesh position={[0, 12, 6.5]} geometry={geometryPool.loungeArmchairBack} material={fabricMat} castShadow />
-      {/* Tapered black metal legs */}
-      <mesh position={[-6.8, 2.5, 6]} geometry={geometryPool.loungeArmchairLeg} material={materialPool.metal} />
-      <mesh position={[6.8, 2.5, 6]} geometry={geometryPool.loungeArmchairLeg} material={materialPool.metal} />
-      <mesh position={[-6.8, 2.5, -6]} geometry={geometryPool.loungeArmchairLeg} material={materialPool.metal} />
-      <mesh position={[6.8, 2.5, -6]} geometry={geometryPool.loungeArmchairLeg} material={materialPool.metal} />
-    </group>
-  );
+// Mid-Century Modern Club Lounge Armchair (from /Assets_lib/sofa_chair.glb)
+function ClubArmchair({ position, rotation = [0, 0, 0] }) {
+  return <ClubArmchairModel position={position} rotation={rotation} />;
 }
 
 // Modern Minimalist Floor Lamp with Warm Glow
@@ -177,21 +161,21 @@ function ConferenceBoardroomSuite({ position }) {
       {/* Central Cable Connectivity Hub */}
       <mesh position={[0, 13.2, 0]} geometry={geometryPool.conferenceCenterHub} material={materialPool.metal} />
 
-      {/* 3 North Chairs */}
+      {/* 3 North Chairs (from /Assets_lib/dublin_chair.glb) */}
       {[-24, 0, 24].map((x, i) => (
-        <OfficeChair key={`cn_${i}`} position={[x, 0, -18]} rotation={[0, Math.PI, 0]} color="cream" />
+        <DublinChairModel key={`cn_${i}`} position={[x, 0, -18]} rotation={[0, Math.PI, 0]} variant="white" />
       ))}
 
       {/* 3 South Chairs */}
       {[-24, 0, 24].map((x, i) => (
-        <OfficeChair key={`cs_${i}`} position={[x, 0, 18]} rotation={[0, 0, 0]} color="cream" />
+        <DublinChairModel key={`cs_${i}`} position={[x, 0, 18]} rotation={[0, 0, 0]} variant="white" />
       ))}
 
       {/* 1 West Head Chair */}
-      <OfficeChair position={[-42, 0, 0]} rotation={[0, -Math.PI / 2, 0]} color="navy" />
+      <DublinChairModel position={[-42, 0, 0]} rotation={[0, -Math.PI / 2, 0]} variant="black" />
 
       {/* 1 East Head Chair */}
-      <OfficeChair position={[42, 0, 0]} rotation={[0, Math.PI / 2, 0]} color="navy" />
+      <DublinChairModel position={[42, 0, 0]} rotation={[0, Math.PI / 2, 0]} variant="black" />
     </group>
   );
 }
@@ -213,17 +197,8 @@ function LushPlant({ position }) {
 function LoungeArea({ position }) {
   return (
     <group position={position}>
-      {/* 3-Seater Modern Sectional Sofa */}
-      <group position={[0, 0, -18]}>
-        <mesh position={[0, 2.5, 0]} geometry={geometryPool.sofaBase} material={materialPool.fabricNavy} castShadow receiveShadow />
-        <mesh position={[0, 9.5, -7]} geometry={geometryPool.sofaBack} material={materialPool.fabricNavy} castShadow />
-        <mesh position={[-21, 6.5, 0]} geometry={geometryPool.sofaArm} material={materialPool.fabricNavy} castShadow />
-        <mesh position={[21, 6.5, 0]} geometry={geometryPool.sofaArm} material={materialPool.fabricNavy} castShadow />
-        {/* Soft Designer Accent Cushions */}
-        <mesh position={[-12, 5.5, 1]} geometry={geometryPool.sofaCushion} material={materialPool.fabricTeal} />
-        <mesh position={[0, 5.5, 1]} geometry={geometryPool.sofaCushion} material={materialPool.fabricNavy} />
-        <mesh position={[12, 5.5, 1]} geometry={geometryPool.sofaCushion} material={materialPool.fabricTeal} />
-      </group>
+      {/* 3-Seater Modern Sectional Lounge Sofa (from /Assets_lib/sofa_-_long_sofa.glb) */}
+      <LongSofaModel position={[0, 0, -18]} rotation={[0, 0, 0]} />
 
       {/* Low Blonde Oak Coffee Table */}
       <group position={[0, 0, 10]}>
@@ -237,9 +212,12 @@ function LoungeArea({ position }) {
         <mesh position={[5, 7.5, 1]} geometry={geometryPool.coffeeMug} material={materialPool.coffeeMug} />
       </group>
 
-      {/* Flanking Mid-Century Armchairs Facing the Coffee Table */}
-      <ClubArmchair position={[-34, 0, 10]} rotation={[0, -Math.PI / 2, 0]} color="cream" />
-      <ClubArmchair position={[34, 0, 10]} rotation={[0, Math.PI / 2, 0]} color="cream" />
+      {/* Flanking Mid-Century Armchairs Facing the Coffee Table (from /Assets_lib/sofa_chair.glb) */}
+      <ClubArmchair position={[-34, 0, 10]} rotation={[0, -Math.PI / 2, 0]} />
+      <ClubArmchair position={[34, 0, 10]} rotation={[0, Math.PI / 2, 0]} />
+
+      {/* Biophilic Hanging Basket Swing Relaxation Chair (from /Assets_lib/basket_swing_chair.glb) */}
+      <SwingChairModel position={[75, 0, 20]} rotation={[0, -Math.PI / 4, 0]} />
 
       {/* Designer Floor Lamp */}
       <FloorLamp position={[34, 0, -20]} />
