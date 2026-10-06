@@ -271,17 +271,17 @@ export function LocalPlayer({ playerRef }) {
     let nextX = curX;
     let nextZ = curZ;
 
-    // Axis-Separated Wall & Furniture Collision Resolution (Smooth Sliding)
+    // Axis-Separated Wall & Furniture Collision Resolution (Smooth Sliding & Anti-Stuck)
     if (currentSpeed > 0.001) {
       // 1. Test X movement independently
       const testX = curX + stepX;
-      if (CollisionSystem.canMove(collisionGrid, testX, curZ, PLAYER_RADIUS)) {
+      if (CollisionSystem.canMove(collisionGrid, testX, curZ, PLAYER_RADIUS, undefined, null, curX, curZ)) {
         nextX = testX;
       }
 
       // 2. Test Z movement independently
       const testZ = curZ + stepZ;
-      if (CollisionSystem.canMove(collisionGrid, nextX, testZ, PLAYER_RADIUS)) {
+      if (CollisionSystem.canMove(collisionGrid, nextX, testZ, PLAYER_RADIUS, undefined, null, nextX, curZ)) {
         nextZ = testZ;
       }
 

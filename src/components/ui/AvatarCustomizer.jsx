@@ -66,7 +66,7 @@ export function AvatarCustomizer({ onContinue }) {
           justifyContent: 'center',
           fontSize: '2rem'
         }}>
-          {style === 'business' ? '👔' : style === 'creative' ? '🎨' : '👤'}
+          {style === 'business' ? '👔' : style === 'creative' ? '🎨' : style === 'glb_model' ? '🧍' : '👤'}
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -98,18 +98,18 @@ export function AvatarCustomizer({ onContinue }) {
             <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#cbd5e1', marginBottom: '0.5rem' }}>
               Avatar Style
             </label>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
               {[
                 { id: 'casual', label: '👤 Casual' },
                 { id: 'business', label: '👔 Business' },
-                { id: 'creative', label: '🎨 Creative' }
+                { id: 'creative', label: '🎨 Creative' },
+                { id: 'glb_model', label: '🧍 3D Model' }
               ].map(s => (
                 <button
                   type="button"
                   key={s.id}
                   onClick={() => setStyle(s.id)}
                   style={{
-                    flex: 1,
                     padding: '0.5rem 0.75rem',
                     borderRadius: '0.5rem',
                     border: style === s.id ? '2px solid #3b82f6' : '2px solid transparent',

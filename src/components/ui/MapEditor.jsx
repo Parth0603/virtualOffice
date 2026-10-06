@@ -38,8 +38,10 @@ export function MapEditor({ onMapSubmitted }) {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
-    const c = Math.floor((e.clientX - rect.left) / TILE_SIZE);
-    const r = Math.floor((e.clientY - rect.top) / TILE_SIZE);
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const c = Math.floor(((e.clientX - rect.left) * scaleX) / TILE_SIZE);
+    const r = Math.floor(((e.clientY - rect.top) * scaleY) / TILE_SIZE);
 
     if (r >= 0 && r < ROWS && c >= 0 && c < COLS) {
       setMapGrid(prev => {
@@ -183,7 +185,11 @@ export function MapEditor({ onMapSubmitted }) {
           style={{
             display: 'block',
             cursor: 'crosshair',
-            backgroundColor: '#0f172a'
+            backgroundColor: '#0f172a',
+            maxWidth: '90vw',
+            maxHeight: '48vh',
+            width: 'auto',
+            height: 'auto'
           }}
         />
       </div>

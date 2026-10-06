@@ -6,7 +6,7 @@ import { CameraManager, useCameraMode } from '../../systems/cameraManager.js';
 import { useWorkspaceStore } from '../../state/useWorkspaceStore.js';
 import { useInteractionStore } from '../../systems/interactionSystem.js';
 import { CollisionSystem } from '../../systems/collision.js';
-import { TILE_SIZE } from '../../constants/grid.js';
+import { TILE_SIZE, COLS, ROWS } from '../../constants/grid.js';
 
 // Pre-allocated vectors to prevent per-frame garbage collection
 const vTarget = new THREE.Vector3();
@@ -24,7 +24,12 @@ export function CameraController({ localPlayerRef }) {
   const cameraMode = useCameraMode();
   const isFirstPerson = cameraMode === 'FIRST_PERSON';
 
+  useEffect(() => {
+    window.__CAMERA_CONTROLS__ = cameraControls;
+  }, []);
+
   const cameraTargetRef = useRef(new THREE.Vector3(80, 16, 80));
+  const initializedTargetRef = useRef(false);
   const actualDistanceRef = useRef(cameraControls.distance);
   const modeBlendRef = useRef(isFirstPerson ? 1.0 : 0.0);
   const prevModeRef = useRef(cameraMode);
@@ -80,8 +85,8 @@ export function CameraController({ localPlayerRef }) {
 
     const handleWheel = (e) => {
       e.preventDefault();
-      // Scroll zoom only when in third person
-      if (modeBlendRef.current < 0.3) {
+      // Scroll zoom in third person (or transitioning to third person)
+      if (CameraManager.isThirdPerson() || modeBlendRef.current < 0.8) {
         const zoomFactor = 0.16;
         cameraControls.targetDistance = Math.max(35, Math.min(220, cameraControls.targetDistance + e.deltaY * zoomFactor));
       }
@@ -166,8 +171,16 @@ export function CameraController({ localPlayerRef }) {
     // ------------------------------------------------------------------------
     // 3. TARGET POSITION TRACKING
     // ------------------------------------------------------------------------
-    const clampedX = Math.max(32, Math.min(608, playerGroup.position.x));
-    const clampedZ = Math.max(32, Math.min(448, playerGroup.position.z));
+    const map = mapData?.map;
+    const numCols = (map && map[0] && map[0].length) || COLS;
+    const numRows = (map && map.length) || ROWS;
+    const minBoundX = TILE_SIZE * 0.5;
+    const maxBoundX = (numCols - 0.5) * TILE_SIZE;
+    const minBoundZ = TILE_SIZE * 0.5;
+    const maxBoundZ = (numRows - 0.5) * TILE_SIZE;
+
+    const clampedX = Math.max(minBoundX, Math.min(maxBoundX, playerGroup.position.x));
+    const clampedZ = Math.max(minBoundZ, Math.min(maxBoundZ, playerGroup.position.z));
 
     if (isSitting && currentChair) {
       vTarget.set(
@@ -179,12 +192,16 @@ export function CameraController({ localPlayerRef }) {
       vTarget.set(clampedX, 16, clampedZ);
     }
 
-    cameraTargetRef.current.lerp(vTarget, Math.min(1.0, 9.0 * dt));
+    if (!initializedTargetRef.current && (playerGroup.position.x !== 0 || playerGroup.position.z !== 0)) {
+      cameraTargetRef.current.copy(vTarget);
+      initializedTargetRef.current = true;
+    } else {
+      cameraTargetRef.current.lerp(vTarget, Math.min(1.0, 9.0 * dt));
+    }
 
     // Smooth camera distance, pitch, and yaw damping
-    const targetDist = isSitting && !isFirstPerson
-      ? Math.min(cameraControls.targetDistance, 55)
-      : cameraControls.targetDistance;
+    // Allow full zoom in / zoom out freedom whether standing or seated
+    const targetDist = cameraControls.targetDistance;
 
     cameraControls.distance += (targetDist - cameraControls.distance) * Math.min(1.0, 10.0 * dt);
     cameraControls.pitch += (cameraControls.targetPitch - cameraControls.pitch) * Math.min(1.0, 14.0 * dt);
@@ -203,7 +220,6 @@ export function CameraController({ localPlayerRef }) {
     // 4. THIRD-PERSON OBSTACLE & WALL COLLISION CLEARANCE
     // ------------------------------------------------------------------------
     let maxClearDistance = d;
-    const map = mapData?.map;
 
     if (blend < 0.8) {
       const originX = cameraTargetRef.current.x;
@@ -220,7 +236,7 @@ export function CameraController({ localPlayerRef }) {
         const testZ = originZ + dirZ * testDist;
 
         // Check map boundary walls
-        if (map && map.length > 0 && testY < 42) {
+        if (map && map.length > 0 && testY < 58.8) {
           const rows = map.length;
           const cols = map[0].length;
           const col = Math.floor(testX / TILE_SIZE);
@@ -232,8 +248,8 @@ export function CameraController({ localPlayerRef }) {
           }
         }
 
-        // Check furniture obstacles
-        if (CollisionSystem.obstacles && CollisionSystem.obstacles.length > 0) {
+        // Check furniture obstacles (only if ray height is at or below furniture top level <= 20)
+        if (testY <= 20 && CollisionSystem.obstacles && CollisionSystem.obstacles.length > 0) {
           let hitFurniture = false;
           for (const obs of CollisionSystem.obstacles) {
             // Ignore current chair's immediate parent if sitting to allow close viewing

@@ -2,7 +2,7 @@ import { io } from 'socket.io-client';
 
 export function getBackendUrl() {
   const url = import.meta.env.VITE_BACKEND_URL
-    || (window.location.port === '4000'
+    || (window.location.port === '4000' || window.location.port === '9333'
       ? `http://${window.location.hostname}:4001`
       : window.location.origin);
   return url.replace(/\/+$/, '');

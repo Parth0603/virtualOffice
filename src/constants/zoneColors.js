@@ -13,10 +13,10 @@ export const ZONE_NAMES = [
   "Wall",
   "Lobby & Reception",
   "Team Workspace",
-  "Meeting Room",
-  "Project Room",
-  "Private Room",
-  "Lounge & Chill Area"
+  "Conference Room",
+  "Breakout Area",
+  "Private Offices",
+  "Lounge & Kitchen"
 ];
 
 export const ZONE_METADATA = {
@@ -37,7 +37,7 @@ export const ZONE_METADATA = {
     icon: "🏢",
     accentColor: "#3b82f6",
     floorColor: "#f1f5f9",
-    desc: "Main Entrance & Welcome Desk",
+    desc: "Main Entrance, Branding Wall & Reception",
     restricted: false
   },
   2: {
@@ -52,42 +52,42 @@ export const ZONE_METADATA = {
   },
   3: {
     id: 3,
-    name: "Meeting Room",
-    label: "Meeting Room",
+    name: "Conference Room",
+    label: "Conference Room",
     icon: "📊",
     accentColor: "#059669",
     floorColor: "#e0f2fe",
-    desc: "Boardroom Table & Presentation Screen",
+    desc: "12-Seat Boardroom & Presentation Screen",
     restricted: false
   },
   4: {
     id: 4,
-    name: "Project Room",
-    label: "Project Room",
+    name: "Breakout Area",
+    label: "Breakout Area",
     icon: "🚀",
     accentColor: "#7c3aed",
     floorColor: "#f3e8ff",
-    desc: "Team Sprint Pods & Whiteboard",
+    desc: "Casual Collaboration & Whiteboard",
     restricted: false
   },
   5: {
     id: 5,
-    name: "Private Room",
-    label: "Private Room",
+    name: "Private Offices",
+    label: "Private Offices",
     icon: "🔒",
     accentColor: "#dc2626",
     floorColor: "#fee2e2",
-    desc: "Executive Suite • Host Permission Required",
+    desc: "Executive Suites & Pods • Host Permission Required",
     restricted: true
   },
   6: {
     id: 6,
-    name: "Lounge & Chill Area",
-    label: "Lounge Area",
+    name: "Lounge & Kitchen",
+    label: "Lounge & Kitchen",
     icon: "☕",
     accentColor: "#d97706",
     floorColor: "#fef3c7",
-    desc: "Casual Sofas, Coffee Table & Plants",
+    desc: "Casual Sofas, Kitchen Island & Dining",
     restricted: false
   }
 };
@@ -105,30 +105,56 @@ export function getZoneMetadata(zoneId) {
   };
 }
 
-// Default 15x20 architectural office layout
+// Modern 24x36 architectural startup office layout
 export const DEFAULT_OFFICE_MAP = [
-  // Row 0: Outer North Wall
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  // Rows 1-4: Lobby (Left) | Dividing Wall with doorway | Lounge (Right)
-  [0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0],
-  [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0], // Doorway col 9
-  [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0], // Doorway col 9
-  [0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0],
-  // Row 5: Horizontal Dividing Wall with wide hallway doorways at cols 4-5 and 14-15
-  [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 0, 0, 0, 0],
-  // Rows 6-9: Team Workspace (Left) | Dividing Wall | Meeting Room (Right)
-  [0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0],
-  [0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0], // Corridor opening col 9
-  [0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0], // Corridor opening col 9
-  [0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0],
-  // Row 10: Horizontal Dividing Wall with doorways at cols 4-5 and 14-15
-  [0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 0, 0, 0, 0],
-  // Rows 11-13: Project Room (Left) | Dividing Wall | Private Room (Right, Restricted)
-  [0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0],
-  [0, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0], // Restricted entrance at col 9
-  [0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0],
-  // Row 14: Outer South Wall
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  // Row 0
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  // Row 1
+  [0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 5, 5, 5, 5, 5, 0, 5, 5, 5, 0],
+  // Row 2
+  [0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 5, 5, 5, 5, 5, 0, 5, 5, 5, 0],
+  // Row 3
+  [0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 5, 5, 5, 5, 5, 0, 5, 5, 5, 0],
+  // Row 4
+  [0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 5, 5, 5, 5, 5, 0, 5, 5, 5, 0],
+  // Row 5
+  [0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 5, 0, 0, 0, 0, 5, 0, 0],
+  // Row 6
+  [0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 5, 5, 5, 5, 5, 0, 5, 5, 5, 0],
+  // Row 7
+  [0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 5, 5, 5, 5, 5, 0, 5, 5, 5, 0],
+  // Row 8
+  [0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 5, 5, 5, 5, 5, 0, 5, 5, 5, 0],
+  // Row 9
+  [0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 5, 5, 5, 5, 5, 0, 5, 5, 5, 0],
+  // Row 10
+  [0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 5, 5, 5, 5, 5, 0, 5, 5, 5, 0],
+  // Row 11
+  [0, 0, 0, 0, 0, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 5, 0, 0],
+  // Row 12
+  [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+  // Row 13
+  [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+  // Row 14
+  [0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 6, 6, 0, 0, 0, 0, 4, 4, 0, 0],
+  // Row 15
+  [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6, 0, 4, 4, 4, 4, 0],
+  // Row 16
+  [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6, 0, 4, 4, 4, 4, 0],
+  // Row 17
+  [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6, 0, 4, 4, 4, 4, 0],
+  // Row 18
+  [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4, 4, 4, 4, 4, 0],
+  // Row 19
+  [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4, 4, 4, 4, 4, 0],
+  // Row 20
+  [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6, 0, 4, 4, 4, 4, 0],
+  // Row 21
+  [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6, 0, 4, 4, 4, 4, 0],
+  // Row 22
+  [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6, 0, 4, 4, 4, 4, 0],
+  // Row 23
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 ];
 
 export function parseHexColor(hexStr) {

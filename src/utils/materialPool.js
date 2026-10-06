@@ -1,39 +1,223 @@
 import * as THREE from 'three';
 import { parseHexColor } from '../constants/zoneColors.js';
+import {
+  createMarblePorcelainTextures,
+  createWorkspaceCarpetTextures,
+  createDarkCarpetTextures,
+  createAreaRugTextures,
+  createLobbyMarbleTextures,
+  createFeatureWallBrandingTextures,
+  createLobbyRoundRugTextures,
+  createLobbyWaitingRugTextures
+} from './floorTextures.js';
 
 class MaterialPool {
   constructor() {
-    // Modern Glass Office Architectural Materials
+    // --- Premium Architectural Flooring PBR Materials (Matching Reference Image) ---
+    const marbleTextures = createMarblePorcelainTextures(512);
+    this.floorCorridorMarble = new THREE.MeshStandardMaterial({
+      map: marbleTextures.map,
+      normalMap: marbleTextures.normalMap,
+      roughnessMap: marbleTextures.roughnessMap,
+      roughness: 0.22, // Polished, slightly reflective porcelain/marble
+      metalness: 0.02
+    });
+
+    // Dedicated Lobby Polished Ivory/Cream Marble Floor (Zone 1)
+    const lobbyMarbleTextures = createLobbyMarbleTextures(1024);
+    this.floorLobbyMarble = new THREE.MeshStandardMaterial({
+      map: lobbyMarbleTextures.map,
+      normalMap: lobbyMarbleTextures.normalMap,
+      roughnessMap: lobbyMarbleTextures.roughnessMap,
+      roughness: 0.16, // Polished, elegant reflections, reacts to warm lighting
+      metalness: 0.03
+    });
+
+    // Feature Wall Center Slab with Syntra Hexagon Logo & Typography
+    const featureWallTextures = createFeatureWallBrandingTextures(1024, 1024);
+    this.featureWallBranding = new THREE.MeshStandardMaterial({
+      map: featureWallTextures.map,
+      normalMap: featureWallTextures.normalMap,
+      roughnessMap: featureWallTextures.roughnessMap,
+      roughness: 0.14,
+      metalness: 0.03
+    });
+
+    // Lobby Area Rugs (Waiting Area & Second Seating Area)
+    const waitingRugTextures = createLobbyWaitingRugTextures(512);
+    this.lobbyWaitingRug = new THREE.MeshStandardMaterial({
+      map: waitingRugTextures.map,
+      roughnessMap: waitingRugTextures.roughnessMap,
+      roughness: 0.82,
+      metalness: 0.0
+    });
+
+    const roundRugTextures = createLobbyRoundRugTextures(512);
+    this.lobbyRoundRug = new THREE.MeshStandardMaterial({
+      map: roundRugTextures.map,
+      roughnessMap: roundRugTextures.roughnessMap,
+      roughness: 0.82,
+      metalness: 0.0
+    });
+
+    // Reception Desk Waterfall Marble
+    this.receptionMarble = new THREE.MeshStandardMaterial({
+      map: lobbyMarbleTextures.map,
+      normalMap: lobbyMarbleTextures.normalMap,
+      roughness: 0.12,
+      metalness: 0.03
+    });
+
+    // Lobby Executive Materials (Emerald Velvet & Cognac Leather)
+    this.emeraldFabric = new THREE.MeshStandardMaterial({
+      color: 0x14402a, // Deep rich emerald green velvet
+      roughness: 0.58,
+      metalness: 0.02,
+      side: THREE.DoubleSide
+    });
+
+    this.cognacLeather = new THREE.MeshStandardMaterial({
+      color: 0xaa6832, // Warm cognac / saddle leather
+      roughness: 0.38,
+      metalness: 0.06,
+      side: THREE.DoubleSide
+    });
+
+    this.darkMarble = new THREE.MeshStandardMaterial({
+      color: 0x222428, // Polished black / dark charcoal marble
+      roughness: 0.18,
+      metalness: 0.04
+    });
+
+    this.oakSlats = new THREE.MeshStandardMaterial({
+      color: 0xdca86b, // Warm blonde/natural oak wood slats with rich grain tone
+      roughness: 0.44,
+      metalness: 0.02
+    });
+
+    this.coveGlow = new THREE.MeshBasicMaterial({
+      color: 0xffebd2 // Warm 3000K architectural cove backlight
+    });
+
+    this.receptionKickbase = new THREE.MeshStandardMaterial({
+      color: 0x141416,
+      roughness: 0.6
+    });
+
+    const workspaceTextures = createWorkspaceCarpetTextures(512);
+    this.floorWorkspaceCarpet = new THREE.MeshStandardMaterial({
+      map: workspaceTextures.map,
+      normalMap: workspaceTextures.normalMap,
+      roughnessMap: workspaceTextures.roughnessMap,
+      roughness: 0.88, // Matte commercial carpet tile
+      metalness: 0.0
+    });
+
+    const confCarpetTextures = createDarkCarpetTextures(512, true);
+    this.floorConferenceCarpet = new THREE.MeshStandardMaterial({
+      map: confCarpetTextures.map,
+      normalMap: confCarpetTextures.normalMap,
+      roughnessMap: confCarpetTextures.roughnessMap,
+      roughness: 0.92, // Executive dark slate carpet
+      metalness: 0.0
+    });
+
+    const privCarpetTextures = createDarkCarpetTextures(512, false);
+    this.floorPrivateOfficeCarpet = new THREE.MeshStandardMaterial({
+      map: privCarpetTextures.map,
+      normalMap: privCarpetTextures.normalMap,
+      roughnessMap: privCarpetTextures.roughnessMap,
+      roughness: 0.90, // Dark charcoal / warm-gray carpet
+      metalness: 0.0
+    });
+
+    this.floorLoungeStone = new THREE.MeshStandardMaterial({
+      map: marbleTextures.map,
+      normalMap: marbleTextures.normalMap,
+      roughnessMap: marbleTextures.roughnessMap,
+      roughness: 0.28, // Light porcelain / stone tile base for lounge
+      metalness: 0.02
+    });
+
+    this.floorKitchenTile = new THREE.MeshStandardMaterial({
+      map: marbleTextures.map,
+      normalMap: marbleTextures.normalMap,
+      roughnessMap: marbleTextures.roughnessMap,
+      roughness: 0.25, // Large-format light porcelain tile
+      metalness: 0.02
+    });
+
+    this.floorBreakoutCarpet = new THREE.MeshStandardMaterial({
+      map: workspaceTextures.map,
+      normalMap: workspaceTextures.normalMap,
+      roughnessMap: workspaceTextures.roughnessMap,
+      roughness: 0.82, // Neutral breakout flooring
+      metalness: 0.0
+    });
+
+    const rugTextures = createAreaRugTextures(512);
+    this.areaRug = new THREE.MeshStandardMaterial({
+      map: rugTextures.map,
+      normalMap: rugTextures.normalMap,
+      roughnessMap: rugTextures.roughnessMap,
+      roughness: 0.82, // Designer warm taupe / grey-beige woven rug
+      metalness: 0.0
+    });
+
+    // Modern Glass Office Architectural Materials (High-Performance Locked 60 FPS)
     this.blackAluminum = new THREE.MeshPhongMaterial({
       color: 0x18181b, // Sleek matte black aluminum frame
+      shininess: 40
+    });
+
+    this.frameTrackDark = new THREE.MeshPhongMaterial({
+      color: 0x121417, // Deep dark aluminum track
+      shininess: 30
+    });
+
+    this.pillarWhite = new THREE.MeshPhongMaterial({
+      color: 0x18181b, // Sleek architectural matte black column finish
       shininess: 35
     });
 
-    this.glassClear = new THREE.MeshPhongMaterial({
-      color: 0xe0f2fe, // Subtle clean ice tint
+    this.pillarTrim = new THREE.MeshPhongMaterial({
+      color: 0x27272a, // Deep charcoal aluminum plinth and capital trim
+      shininess: 25
+    });
+
+    this.glassClear = new THREE.MeshPhysicalMaterial({
+      color: 0x47515e, // Refined charcoal grey tint
       transparent: true,
-      opacity: 0.18,
-      shininess: 95,
+      opacity: 0.38, // High-clarity translucent tint: interior rooms, furniture & avatars clearly visible
+      roughness: 0.18, // Clean architectural glazed sheen
+      metalness: 0.05,
+      reflectivity: 0.50,
+      clearcoat: 0.35,
+      clearcoatRoughness: 0.20,
       depthWrite: false,
       side: THREE.DoubleSide
     });
 
-    this.glassFrosted = new THREE.MeshPhongMaterial({
-      color: 0xe2e8f0, // Frosted architectural privacy glass
+    this.glassFrosted = new THREE.MeshPhysicalMaterial({
+      color: 0x3e4652, // Elegant charcoal grey privacy tint (not solid black)
       transparent: true,
-      opacity: 0.52,
-      shininess: 30,
+      opacity: 0.46, // Soft translucent frosted privacy glass
+      roughness: 0.40, // Diffused frosted texture
+      metalness: 0.04,
+      reflectivity: 0.45,
+      clearcoat: 0.20,
       depthWrite: false,
       side: THREE.DoubleSide
     });
 
-    this.glassRestricted = new THREE.MeshPhongMaterial({
-      color: 0xfecaca, // Tinted warning glass for restricted suite
+    this.glassRestricted = new THREE.MeshPhysicalMaterial({
+      color: 0x3d2a2d, // Charcoal tint with subtle ruby warning undertone
       transparent: true,
-      opacity: 0.55,
-      emissive: 0xef4444,
+      opacity: 0.48,
+      emissive: 0x7f1d1d,
       emissiveIntensity: 0.15,
-      shininess: 60,
+      roughness: 0.30,
+      metalness: 0.05,
       depthWrite: false,
       side: THREE.DoubleSide
     });

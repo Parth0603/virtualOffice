@@ -25,8 +25,12 @@ export function WorkspaceCanvas() {
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.05
         }}
-        onCreated={({ scene }) => {
+        onCreated={({ scene, gl, camera }) => {
           scene.background = new THREE.Color(0xf1f5f9);
+          window.__THREE_SCENE__ = scene;
+          window.__THREE_RENDERER__ = gl;
+          window.__THREE_CAMERA__ = camera;
+          window.THREE = THREE;
         }}
       >
         <WorldLighting />

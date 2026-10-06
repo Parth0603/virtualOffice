@@ -1,5 +1,5 @@
-export const ROWS = 15;
-export const COLS = 20;
+export const ROWS = 24;
+export const COLS = 36;
 export const TILE_SIZE = 32;
 
 export const PLAYER_RADIUS = 8.5;
